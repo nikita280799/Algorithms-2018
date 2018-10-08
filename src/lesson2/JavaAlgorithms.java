@@ -1,8 +1,10 @@
 package lesson2;
 
+
 import kotlin.NotImplementedError;
 import kotlin.Pair;
 
+import java.lang.reflect.Array;
 import java.util.Set;
 
 @SuppressWarnings("unused")
@@ -96,8 +98,26 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    static public String longestCommonSubstring(String first, String second) {
+        int[][] matrix = new int[first.length()][second.length()];
+        int max = 0;
+        int maxi = 0;
+        for (int i = 0; i < first.length(); i++) {
+            for (int j = 0; j < second.length(); j++) {
+                if (first.charAt(i) == second.charAt(j)) {
+                    matrix[i][j]++;
+                    if (i != 0 && j != 0) {
+                        matrix[i][j] += matrix[i - 1][j - 1] > 0 ? matrix[i - 1][j - 1] : 0;
+                    }
+                    if (matrix[i][j] > max) {
+                        max = matrix[i][j];
+                        maxi = i;
+                    }
+                }
+            }
+        }
+        if (max == 0) return "";
+        return first.substring(maxi + 1 - max, maxi + 1);
     }
 
     /**
