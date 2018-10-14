@@ -172,8 +172,31 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
     @NotNull
     @Override
     public SortedSet<T> headSet(T toElement) {
-        // TODO
-        throw new NotImplementedError();
+        SortedSet<T> set = new TreeSet<>();
+        headCheck(toElement, root, set);
+        return set;
+
+    }
+
+    public void headCheck(T toElement, Node<T> current, SortedSet<T> set) {
+        int comparison = current.value.compareTo(toElement);
+        if (comparison == 0) {
+            if (current.left != null) addBranchToSet(current.left, set);
+        }
+        if (comparison < 0) {
+            set.add(current.value);
+            if (current.left != null) addBranchToSet(current.left, set);
+            if (current.right != null) headCheck(toElement, current.right, set);
+        }
+        if (comparison > 0) {
+            if (current.left != null) headCheck(toElement, current.left, set);
+        }
+    }
+
+    public void addBranchToSet(Node<T> current, SortedSet<T> set) {
+        set.add(current.value);
+        if (current.left != null) addBranchToSet(current.left, set);
+        if (current.right != null) addBranchToSet(current.right, set);
     }
 
     /**
@@ -183,8 +206,21 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
     @NotNull
     @Override
     public SortedSet<T> tailSet(T fromElement) {
-        // TODO
-        throw new NotImplementedError();
+        SortedSet<T> set = new TreeSet<>();
+        tailCheck(fromElement, root, set);
+        return set;
+    }
+
+    public void tailCheck(T toElement, Node<T> current, SortedSet<T> set) {
+        int comparison = current.value.compareTo(toElement);
+        if (comparison >= 0) {
+            set.add(current.value);
+            if (current.right != null) addBranchToSet(current.right, set);
+            if (current.left != null) tailCheck(toElement, current.left, set);
+        }
+        if (comparison < 0) {
+            if (current.right != null) tailCheck(toElement, current.right, set);
+        }
     }
 
     @Override
