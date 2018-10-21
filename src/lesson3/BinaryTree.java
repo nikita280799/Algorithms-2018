@@ -13,6 +13,21 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
     private static class Node<T> {
         final T value;
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Node<?> node = (Node<?>) o;
+            return Objects.equals(value, node.value) &&
+                    Objects.equals(left, node.left) &&
+                    Objects.equals(right, node.right);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value, left, right);
+        }
+
         Node<T> left = null;
 
         Node<T> right = null;
@@ -36,12 +51,10 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
         Node<T> newNode = new Node<>(t);
         if (closest == null) {
             root = newNode;
-        }
-        else if (comparison < 0) {
+        } else if (comparison < 0) {
             assert closest.left == null;
             closest.left = newNode;
-        }
-        else {
+        } else {
             assert closest.right == null;
             closest.right = newNode;
         }
@@ -66,8 +79,100 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        if (!contains(o)) return false;
+        T t = (T) o;
+        Node<T> current = find(t);
+        if (current.equals(root)) {
+            if (current.left == null && current.right == null) {
+                root = null;
+                size--;
+                return true;
+            }
+            if (current.left == null || current.right == null) {
+                if (current.left == null) {
+                    root = current.right;
+                } else {
+                    root = current.left;
+                }
+                size--;
+                return true;
+            }
+            Node<T> nodeToRoot = leftNodeOfThis(current.right);
+            transport(root, nodeToRoot);
+        } else {
+            Node<T> parent = findParent(root, t);
+            if (current.left == null && current.right == null) {
+                leftOrRight(current, parent, null);
+                size--;
+                return true;
+            }
+            if (current.left == null || current.right == null) {
+                if (current.left == null) {
+                    leftOrRight(current, parent, current.right);
+                } else {
+                    leftOrRight(current, parent, current.left);
+                }
+                size--;
+                return true;
+            }
+            Node<T> node = leftNodeOfThis(current.right);
+            transport(current, node);
+        }
+        size--;
+        return true;
+    }
+
+    public void transport(Node<T> toRemove, Node<T> toTransport) {
+        Node<T> parent = findParent(root, toTransport.value);
+        if (!toRemove.equals(root)) {
+            if (!parent.equals(toRemove)) {
+                parent.left = toTransport.right;
+                parent = findParent(root, toRemove.value);
+                toTransport.right = toRemove.right;
+                toTransport.left = toRemove.left;
+            } else {
+                toTransport.left = parent.left;
+                parent = findParent(root, toRemove.value);
+            }
+            leftOrRight(toRemove, parent, toTransport);
+        } else {
+         if (!parent.equals(root)) {
+             parent.left = toTransport.right;
+             toTransport.right = root.right;
+         }
+         toTransport.left = root.left;
+         root = toTransport;
+        }
+    }
+
+    private Node<T> findParent(Node<T> start, T value) {
+        Node<T> current = start;
+        while (current != null) {
+            int comparison = value.compareTo(current.value);
+            if (comparison == 0) return null;
+            if (comparison < 0) {
+                if (value.compareTo(current.left.value) == 0) return current;
+                else current = current.left;
+            } else {
+                if (value.compareTo(current.right.value) == 0) return current;
+                else current = current.right;
+            }
+        }
+        return null;
+    }
+
+    public void leftOrRight(Node<T> current, Node<T> parent, Node<T> newNode) {
+        if (parent.right != null && parent.right.equals(current)) parent.right = newNode;
+        else parent.left = newNode;
+    }
+
+    public Node<T> leftNodeOfThis(Node<T> root) {
+        Node<T> current = root;
+        if (current.left == null) return current;
+        while (current.left != null) {
+            current = current.left;
+        }
+        return current;
     }
 
     @Override
@@ -87,39 +192,60 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
         int comparison = value.compareTo(start.value);
         if (comparison == 0) {
             return start;
-        }
-        else if (comparison < 0) {
+        } else if (comparison < 0) {
             if (start.left == null) return start;
             return find(start.left, value);
-        }
-        else {
+        } else {
             if (start.right == null) return start;
             return find(start.right, value);
         }
     }
 
+
     public class BinaryTreeIterator implements Iterator<T> {
 
         private Node<T> current = null;
+        private Stack<Node<T>> stack = new Stack<>();
+        private boolean isHasNextExecute = false;
 
-        private BinaryTreeIterator() {}
+        private BinaryTreeIterator() {
+        }
 
         /**
          * Поиск следующего элемента
          * Средняя
          */
         private Node<T> findNext() {
-            // TODO
-            throw new NotImplementedError();
+            if (root == null || (current != null && current.value == last())) return null;
+            if (current == null) {
+                current = root;
+                while (current.left != null) {
+                    stack.push(current);
+                    current = current.left;
+                }
+                return current;
+            }
+            if (current.right == null) return current = stack.pop();
+            current = current.right;
+            while (current.left != null) {
+                stack.push(current);
+                current = current.left;
+            }
+            return current;
         }
 
         @Override
         public boolean hasNext() {
+            isHasNextExecute = true;
             return findNext() != null;
         }
 
         @Override
         public T next() {
+            if (isHasNextExecute) {
+                isHasNextExecute = false;
+                return current.value;
+            }
             current = findNext();
             if (current == null) throw new NoSuchElementException();
             return current.value;
@@ -131,8 +257,14 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
          */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            T previous = current.value;
+            if (!hasNext()) {
+                BinaryTree.this.remove(previous);
+                current = find(last());
+            } else {
+                BinaryTree.this.remove(previous);
+                next();
+            }
         }
     }
 
