@@ -77,71 +77,57 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
      * Удаление элемента в дереве
      * Средняя
      */
+    // Трудоемкость O(N) в худшем случае, O(logN) в среднем
+    // Ресурсоемкость O(1)
     @Override
     public boolean remove(Object o) {
         if (!contains(o)) return false;
         T t = (T) o;
         Node<T> current = find(t);
-        if (current.equals(root)) {
-            if (current.left == null && current.right == null) {
-                root = null;
-                size--;
-                return true;
-            }
-            if (current.left == null || current.right == null) {
-                if (current.left == null) {
-                    root = current.right;
-                } else {
-                    root = current.left;
-                }
-                size--;
-                return true;
-            }
-            Node<T> nodeToRoot = leftNodeOfThis(current.right);
-            transport(root, nodeToRoot);
-        } else {
-            Node<T> parent = findParent(root, t);
-            if (current.left == null && current.right == null) {
-                leftOrRight(current, parent, null);
-                size--;
-                return true;
-            }
-            if (current.left == null || current.right == null) {
-                if (current.left == null) {
-                    leftOrRight(current, parent, current.right);
-                } else {
-                    leftOrRight(current, parent, current.left);
-                }
-                size--;
-                return true;
-            }
-            Node<T> node = leftNodeOfThis(current.right);
-            transport(current, node);
-        }
+        if (current.equals(root)) removePart(current, true);
+        else removePart(current, false);
         size--;
         return true;
     }
 
-    public void transport(Node<T> toRemove, Node<T> toTransport) {
-        Node<T> parent = findParent(root, toTransport.value);
+    public void removePart(Node<T> current, boolean isRoot) {
+        Node<T> parent = findParent(root, current.value);
+        if (current.left == null && current.right == null) {
+            if (isRoot) root = null;
+            else replace(current, parent, null);
+        } else if (current.left == null || current.right == null) {
+            if (current.left == null) {
+                if (isRoot) root = current.right;
+                else replace(current, parent, current.right);
+            } else {
+                if (isRoot) root = current.left;
+                else replace(current, parent, current.left);
+            }
+        } else {
+            Node<T> node = leftNodeOfThis(current.right);
+            transport(current, node);
+        }
+    }
+
+    public void transport(Node<T> toRemove, Node<T> toReplace) {
+        Node<T> parent = findParent(root, toReplace.value);
         if (!toRemove.equals(root)) {
             if (!parent.equals(toRemove)) {
-                parent.left = toTransport.right;
+                parent.left = toReplace.right;
                 parent = findParent(root, toRemove.value);
-                toTransport.right = toRemove.right;
-                toTransport.left = toRemove.left;
+                toReplace.right = toRemove.right;
             } else {
-                toTransport.left = parent.left;
                 parent = findParent(root, toRemove.value);
             }
-            leftOrRight(toRemove, parent, toTransport);
+            toReplace.left = toRemove.left;
+            replace(toRemove, parent, toReplace);
         } else {
-         if (!parent.equals(root)) {
-             parent.left = toTransport.right;
-             toTransport.right = root.right;
-         }
-         toTransport.left = root.left;
-         root = toTransport;
+            if (!parent.equals(root)) {
+                parent.left = toReplace.right;
+                toReplace.right = root.right;
+            }
+            toReplace.left = root.left;
+            root = toReplace;
         }
     }
 
@@ -161,9 +147,9 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
         return null;
     }
 
-    public void leftOrRight(Node<T> current, Node<T> parent, Node<T> newNode) {
-        if (parent.right != null && parent.right.equals(current)) parent.right = newNode;
-        else parent.left = newNode;
+    public void replace(Node<T> current, Node<T> parent, Node<T> replacementNode) {
+        if (parent.right != null && parent.right.equals(current)) parent.right = replacementNode;
+        else parent.left = replacementNode;
     }
 
     public Node<T> leftNodeOfThis(Node<T> root) {
@@ -201,32 +187,29 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
         }
     }
 
-
     public class BinaryTreeIterator implements Iterator<T> {
 
         private Node<T> current = null;
         private Stack<Node<T>> stack = new Stack<>();
         private boolean isHasNextExecute = false;
 
-        private BinaryTreeIterator() {
-        }
+        private BinaryTreeIterator() { }
 
         /**
          * Поиск следующего элемента
          * Средняя
          */
+        // Трудоемкость O(N) в худшем случае, O(logN) в среднем случае
+        // Ресурсоемкость O(N)
         private Node<T> findNext() {
             if (root == null || (current != null && current.value == last())) return null;
-            if (current == null) {
-                current = root;
-                while (current.left != null) {
-                    stack.push(current);
-                    current = current.left;
-                }
-                return current;
-            }
+            if (current == null) return getLeftNode(root);
             if (current.right == null) return current = stack.pop();
-            current = current.right;
+            return getLeftNode(current.right);
+        }
+
+        private Node<T> getLeftNode(Node<T> start) {
+            current = start;
             while (current.left != null) {
                 stack.push(current);
                 current = current.left;
@@ -255,6 +238,8 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
          * Удаление следующего элемента
          * Сложная
          */
+        // Трудоемкость O(N) в худшем случае, O(logN) в среднем
+        // Ресурсоемкость O(1)
         @Override
         public void remove() {
             T previous = current.value;
@@ -279,7 +264,6 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
         return size;
     }
 
-
     @Nullable
     @Override
     public Comparator<? super T> comparator() {
@@ -301,13 +285,15 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
      * Найти множество всех элементов меньше заданного
      * Сложная
      */
+    // Трудоемкость O(N)
+    // Ресурсоемкость O(N)
+    // Знаю, что не совсем удоволетворяет контракту, если будет время - доделаю
     @NotNull
     @Override
     public SortedSet<T> headSet(T toElement) {
         SortedSet<T> set = new TreeSet<>();
         headCheck(toElement, root, set);
         return set;
-
     }
 
     public void headCheck(T toElement, Node<T> current, SortedSet<T> set) {
@@ -335,6 +321,8 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
      * Найти множество всех элементов больше или равных заданного
      * Сложная
      */
+    // Трудоемкость O(N)
+    // Ресурсоемкость O(N)
     @NotNull
     @Override
     public SortedSet<T> tailSet(T fromElement) {

@@ -34,8 +34,6 @@ abstract class AbstractHeadTailTest {
         assertEquals(false, set.contains(8))
         assertEquals(false, set.contains(9))
         assertEquals(false, set.contains(10))
-
-
         set = tree.headSet(127)
         for (i in 1..10)
             assertEquals(true, set.contains(i))

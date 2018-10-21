@@ -101,6 +101,8 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
+    // Трудоемкость O(n * m))
+    // Ресурсоемкость O(N)
     static public String longestCommonSubstring(String first, String second) {
         int[][] matrix = new int[first.length()][second.length()];
         int max = 0;
@@ -163,6 +165,8 @@ public class JavaAlgorithms {
      * В файле буквы разделены пробелами, строки -- переносами строк.
      * Остальные символы ни в файле, ни в словах не допускаются.
      */
+    // Трудоемкость O(n * m))
+    // Ресурсоемкость O(N)
     static public Set<String> baldaSearcher(String inputName, Set<String> words) throws IOException,
             IllegalFormatException {
         String currentLine;
@@ -182,14 +186,13 @@ public class JavaAlgorithms {
         Set<String> result = new HashSet<>();
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                for (String word: words) {
+                for (String word : words) {
                     if (word.charAt(0) == matrix[i][j] && search(word, 0, i, j, matrix)) {
                         result.add(word);
                     }
                 }
             }
         }
-
         return result;
     }
 
@@ -198,9 +201,12 @@ public class JavaAlgorithms {
         curLetter++;
         if (curLetter == word.length()) return true;
         if (i != 0 && matrix[i - 1][j] == word.charAt(curLetter)) upSearch = search(word, curLetter, i - 1, j, matrix);
-        if (i != matrix.length - 1 && matrix[i + 1][j] == word.charAt(curLetter)) downSearch = search(word, curLetter, i + 1, j, matrix);
-        if (j != matrix[i].length - 1 && matrix[i][j + 1] == word.charAt(curLetter)) rightSearch = search(word, curLetter, i, j + 1, matrix);
-        if (j != 0 && matrix[i][j - 1] == word.charAt(curLetter)) leftSearch =  search(word, curLetter, i, j - 1, matrix);
+        if (i != matrix.length - 1 && matrix[i + 1][j] == word.charAt(curLetter))
+            downSearch = search(word, curLetter, i + 1, j, matrix);
+        if (j != matrix[i].length - 1 && matrix[i][j + 1] == word.charAt(curLetter))
+            rightSearch = search(word, curLetter, i, j + 1, matrix);
+        if (j != 0 && matrix[i][j - 1] == word.charAt(curLetter))
+            leftSearch = search(word, curLetter, i, j - 1, matrix);
         return upSearch || downSearch || leftSearch || rightSearch;
     }
 }

@@ -99,6 +99,8 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
+    // Трудоемкость O(N * (logN))
+    // Ресурсоемкость O(N)
     static public void sortTemperatures(String inputName, String outputName) throws IOException,
             IllegalFormatException {
         String currentLine;
@@ -109,9 +111,9 @@ public class JavaTasks {
         }
         listOfTemperatures.sort(Double::compare);
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
-        for (Double temperature: listOfTemperatures) {
-                writer.write(String.valueOf(temperature));
-                writer.newLine();
+        for (Double temperature : listOfTemperatures) {
+            writer.write(String.valueOf(temperature));
+            writer.newLine();
         }
         writer.close();
     }
@@ -145,6 +147,8 @@ public class JavaTasks {
      * 2
      * 2
      */
+    // Трудоемкость O(N)
+    // Ресурсоемкость O(N)
     static public void sortSequence(String inputName, String outputName) throws IOException,
             IllegalFormatException {
         List<Integer> listOfNumbers = new LinkedList<>();
@@ -154,16 +158,16 @@ public class JavaTasks {
         int maxCountNumber = Integer.MAX_VALUE;
         String currentLine;
         BufferedReader bufferedReader = new BufferedReader(new FileReader(inputName));
-            while ((currentLine = bufferedReader.readLine()) != null) {
-                number = Integer.parseInt(currentLine);
-                listOfNumbers.add(number);
-                map.merge(number, 1, ((a, b) -> a + b));
-                currentCount = map.get(number);
-                if (currentCount > maxCount || (currentCount == maxCount && number < maxCountNumber)) {
-                    maxCount = currentCount;
-                    maxCountNumber = number;
-                }
+        while ((currentLine = bufferedReader.readLine()) != null) {
+            number = Integer.parseInt(currentLine);
+            listOfNumbers.add(number);
+            map.merge(number, 1, ((a, b) -> a + b));
+            currentCount = map.get(number);
+            if (currentCount > maxCount || (currentCount == maxCount && number < maxCountNumber)) {
+                maxCount = currentCount;
+                maxCountNumber = number;
             }
+        }
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
         for (Integer i : listOfNumbers) {
             if (i != maxCountNumber) {
