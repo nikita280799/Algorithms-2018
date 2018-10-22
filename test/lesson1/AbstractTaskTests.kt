@@ -191,7 +191,7 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         }
 
         try {
-            generateSequence(50000, 200)
+            generateSequence(500000, 200)
             sortSequence("temp_sequence.txt", "temp.txt")
             assertFileContent("temp.txt", File("temp_sequence_expected.txt").readLines().joinToString("\n"))
         } finally {

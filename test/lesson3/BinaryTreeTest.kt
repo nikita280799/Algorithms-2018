@@ -77,6 +77,60 @@ class BinaryTreeTest {
         }
     }
 
+    private fun testRemoveEasy(create: () -> CheckableSortedSet<Int>) {
+        val list = mutableListOf<Int>()
+        list.add(87)
+        list.add(96)
+        list.add(89)
+        list.add(8)
+        list.add(72)
+        list.add(97)
+        list.add(74)
+        list.add(56)
+        list.add(48)
+        list.add(15)
+        list.add(41)
+        list.add(84)
+        list.add(10)
+        list.add(32)
+        list.add(2)
+        list.add(30)
+        list.add(39)
+        list.add(53)
+        list.add(26)
+        list.add(52)
+        list.add(48)
+
+
+        val treeSet = TreeSet<Int>()
+        val binarySet = create()
+        for (element in list) {
+            treeSet += element
+            binarySet += element
+        }
+        var toRemove = 8
+        println("$toRemove из $list")
+        treeSet.remove(toRemove)
+        binarySet.remove(toRemove)
+        list.remove(toRemove)
+        val binaryIt = binarySet.iterator()
+        val treeSIt = treeSet.iterator()
+        while (binaryIt.hasNext()) {
+            var value = binaryIt.next()
+            var value2 = treeSIt.next()
+            println(value)
+            println(value2)
+        }
+        assertEquals<SortedSet<*>>(treeSet, binarySet, "After removal of $toRemove from $list")
+        assertEquals(treeSet.size, binarySet.size)
+        for (element in list) {
+            val inn = element != toRemove
+            assertEquals(inn, element in binarySet,
+                    "$element should be ${if (inn) "in" else "not in"} tree")
+        }
+        assertTrue(binarySet.checkInvariant())
+    }
+
     @Test
     @Tag("Normal")
     fun testRemoveKotlin() {
