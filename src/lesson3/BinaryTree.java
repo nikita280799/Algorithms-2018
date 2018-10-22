@@ -82,9 +82,10 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
     @Override
     public boolean remove(Object o) {
         if (!contains(o)) return false;
+        @SuppressWarnings("unchecked")
         T t = (T) o;
         Node<T> current = find(t);
-        if (current.equals(root)) removePart(current, true);
+        if (current != null && current.equals(root)) removePart(current, true);
         else removePart(current, false);
         size--;
         return true;
@@ -112,7 +113,7 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
     public void transport(Node<T> toRemove, Node<T> toReplace) {
         Node<T> parent = findParent(root, toReplace.value);
         if (!toRemove.equals(root)) {
-            if (!parent.equals(toRemove)) {
+            if (parent != null && !parent.equals(toRemove)) {
                 parent.left = toReplace.right;
                 parent = findParent(root, toRemove.value);
                 toReplace.right = toRemove.right;
@@ -122,7 +123,7 @@ public class BinaryTree<T extends Comparable<T>> extends AbstractSet<T> implemen
             toReplace.left = toRemove.left;
             replace(toRemove, parent, toReplace);
         } else {
-            if (!parent.equals(root)) {
+            if (parent != null && !parent.equals(root)) {
                 parent.left = toReplace.right;
                 toReplace.right = root.right;
             }
