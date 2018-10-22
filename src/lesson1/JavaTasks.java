@@ -104,16 +104,17 @@ public class JavaTasks {
     static public void sortTemperatures(String inputName, String outputName) throws IOException,
             IllegalFormatException {
         String currentLine;
-        List<Double> listOfTemperatures = new ArrayList<>();
+        TreeMap<Double, Integer> map = new TreeMap<>();
         BufferedReader bufferedReader = new BufferedReader(new FileReader(inputName));
         while ((currentLine = bufferedReader.readLine()) != null) {
-            listOfTemperatures.add(Double.parseDouble(currentLine));
+            map.merge(Double.parseDouble(currentLine), 1, (a,b) -> a + b);
         }
-        listOfTemperatures.sort(Double::compare);
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
-        for (Double temperature : listOfTemperatures) {
-            writer.write(String.valueOf(temperature));
-            writer.newLine();
+        for (Map.Entry<Double, Integer> item : map.entrySet()) {
+            for (int i = 0; i < item.getValue(); i++) {
+                writer.write(String.valueOf(item.getKey()));
+                writer.newLine();
+            }
         }
         writer.close();
     }
