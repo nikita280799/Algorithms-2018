@@ -113,7 +113,7 @@ abstract class AbstractTaskTests : AbstractFileTests() {
             }
         }
         testGeneratedTemperatures(10)
-        testGeneratedTemperatures(5000)
+        testGeneratedTemperatures(500)
     }
 
     protected fun sortSequence(sortSequence: (String, String) -> Unit) {
@@ -191,7 +191,7 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         }
 
         try {
-            generateSequence(500000, 200)
+            generateSequence(50000, 200)
             sortSequence("temp_sequence.txt", "temp.txt")
             assertFileContent("temp.txt", File("temp_sequence_expected.txt").readLines().joinToString("\n"))
         } finally {
