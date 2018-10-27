@@ -99,21 +99,23 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    // Трудоемкость O(N * (logN))
-    // Ресурсоемкость O(N)
+    // Трудоемкость O(N)
+    // Ресурсоемкость O(1)
     static public void sortTemperatures(String inputName, String outputName) throws IOException,
             IllegalFormatException {
         String currentLine;
-        TreeMap<Double, Integer> map = new TreeMap<>();
+        int[] mas = new int[7731];
         BufferedReader bufferedReader = new BufferedReader(new FileReader(inputName));
         while ((currentLine = bufferedReader.readLine()) != null) {
-            map.merge(Double.parseDouble(currentLine), 1, (a,b) -> a + b);
+            mas[(int)(Double.parseDouble(currentLine) * 10) + 2730]++ ;
         }
         BufferedWriter writer = new BufferedWriter(new FileWriter(outputName));
-        for (Map.Entry<Double, Integer> item : map.entrySet()) {
-            for (int i = 0; i < item.getValue(); i++) {
-                writer.write(String.valueOf(item.getKey()));
-                writer.newLine();
+        for (int i = 0; i < 7731; i++) {
+            if (mas[i] != 0) {
+                for (int j = 0; j < mas[i]; j++) {
+                    writer.write(String.valueOf((double) (i - 2730) / 10));
+                    writer.newLine();
+                }
             }
         }
         writer.close();

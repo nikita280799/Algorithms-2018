@@ -101,8 +101,8 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    // Трудоемкость O(n * m))
-    // Ресурсоемкость O(N)
+    // Трудоемкость O(n * m)
+    // Ресурсоемкость O(n * m)
     static public String longestCommonSubstring(String first, String second) {
         int[][] matrix = new int[first.length()][second.length()];
         int max = 0;
@@ -165,8 +165,9 @@ public class JavaAlgorithms {
      * В файле буквы разделены пробелами, строки -- переносами строк.
      * Остальные символы ни в файле, ни в словах не допускаются.
      */
-    // Трудоемкость O(n * m))
-    // Ресурсоемкость O(N)
+    // Трудоемкость O(N * 4^k), где N кол-во слов для поиска, а k кол-во букв в слове, а => 4^k
+    // 4^k максимально возможное кол-во вызванных функций search
+    // Ресурсоемкость O(n * m), где n число столбцов, а m число строк матрицы
     static public Set<String> baldaSearcher(String inputName, Set<String> words) throws IOException,
             IllegalFormatException {
         String currentLine;
