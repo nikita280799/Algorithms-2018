@@ -31,6 +31,9 @@ public interface Graph {
     @NotNull
     Set<Edge> getEdges();
 
+    @NotNull
+    Vertex getRandomVertex();
+
     @Nullable
     Vertex get(String name);
 

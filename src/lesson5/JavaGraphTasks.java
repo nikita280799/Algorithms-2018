@@ -2,8 +2,7 @@ package lesson5;
 
 import kotlin.NotImplementedError;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaGraphTasks {
@@ -33,8 +32,44 @@ public class JavaGraphTasks {
      * Справка: Эйлеров цикл -- это цикл, проходящий через все рёбра
      * связного графа ровно по одному разу
      */
+
+    // Трудоемкость Т = О(N)
+    // Ресурсоемкость R = О(N)
     public static List<Graph.Edge> findEulerLoop(Graph graph) {
-        throw new NotImplementedError();
+        List<Graph.Edge> result = new LinkedList<>();
+        if (!isItContainsEulerLoop(graph)) return result;
+        Set<Graph.Edge> setOfVisitedEdges = new HashSet<>();
+        Stack<Graph.Vertex> stack = new Stack<>();
+        stack.push(graph.getRandomVertex());
+        while (graph.getEdges().size() != result.size()) {
+            Graph.Vertex vertex = stack.peek();
+            Graph.Edge edge = null;
+            for (Graph.Edge e : graph.getConnections(vertex).values()) {
+                if (!setOfVisitedEdges.contains(e)) {
+                    edge = e;
+                }
+            }
+            if (edge != null) {
+                if (vertex == edge.getBegin()) stack.push(edge.getEnd());
+                else stack.push(edge.getBegin());
+                setOfVisitedEdges.add(edge);
+                result.add(edge);
+            } else {
+                stack.pop();
+                result.remove(result.size() - 1);
+            }
+        }
+        return result;
+    }
+
+    private static boolean isItContainsEulerLoop(Graph graph) {
+        for (Graph.Vertex vertex : graph.getVertices()) {
+            int countOfNeighbors = graph.getNeighbors(vertex).size();
+            if (countOfNeighbors == 0 || countOfNeighbors % 2 == 1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -93,8 +128,53 @@ public class JavaGraphTasks {
      *
      * Эта задача может быть зачтена за пятый и шестой урок одновременно
      */
+    // Трудоемкость Т = О(кол-во узлов * кол-во ребер * кол-во независимых множеств вершин)
+    // Ресурсоемкость R = О(N)
     public static Set<Graph.Vertex> largestIndependentVertexSet(Graph graph) {
-        throw new NotImplementedError();
+        Set<Graph.Vertex> candidates = graph.getVertices();
+        Set<Graph.Vertex> not = new HashSet<>();
+        Set<Graph.Vertex> indVertexSet = new HashSet<>();
+        Set<Graph.Vertex> maxIndVertexSet = new HashSet<>();
+        return findIndependentVertexSet(graph, indVertexSet, maxIndVertexSet, candidates, not);
+    }
+
+    private static Set<Graph.Vertex> findIndependentVertexSet(Graph graph, Set<Graph.Vertex> maxIndVertexSet,
+                                                              Set<Graph.Vertex> indVertexSet,
+                                                              Set<Graph.Vertex> candidates, Set<Graph.Vertex> not) {
+        while (checkCondition(graph, candidates, not)) {
+            Graph.Vertex vertex = candidates.stream().findAny().get();
+            indVertexSet.add(vertex);
+            Set<Graph.Vertex> newCandidates = new HashSet<>(candidates);
+            Set<Graph.Vertex> newNot = new HashSet<>(not);
+            newCandidates.removeIf(v -> graph.getNeighbors(v).contains(vertex));
+            newNot.removeIf(v -> graph.getNeighbors(v).contains(vertex));
+            newCandidates.remove(vertex);
+            if (newCandidates.isEmpty() && newNot.isEmpty()) {
+                if (indVertexSet.size() > maxIndVertexSet.size()) {
+                    maxIndVertexSet = new HashSet<>(indVertexSet);
+                }
+            } else {
+                maxIndVertexSet = findIndependentVertexSet(graph, maxIndVertexSet, indVertexSet, newCandidates, newNot);
+            }
+            indVertexSet.remove(vertex);
+            candidates.remove(vertex);
+            not.add(vertex);
+        }
+        return maxIndVertexSet;
+    }
+
+    private static boolean checkCondition(Graph graph, Set<Graph.Vertex> candidates, Set<Graph.Vertex> not) {
+        boolean isFind = true;
+        if (candidates.isEmpty()) return false;
+        for (Graph.Vertex n : not) {
+            for (Graph.Vertex c : candidates) {
+                isFind = graph.getNeighbors(n).contains(c);
+                if (isFind) break;
+            }
+            if (!isFind) return false;
+            isFind = false;
+        }
+        return true;
     }
 
     /**

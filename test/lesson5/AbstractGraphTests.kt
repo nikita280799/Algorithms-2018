@@ -12,18 +12,18 @@ abstract class AbstractGraphTests {
 
     private fun List<Graph.Edge>.assert(shouldExist: Boolean, graph: Graph) {
         val edges = graph.edges
-        if (shouldExist) {
-            assertEquals(edges.size, size, "Euler loop should traverse all edges")
-        } else {
+        if (!shouldExist) {
             assertTrue(isEmpty(), "Euler loop should not exist")
+        } else {
+            assertEquals(edges.size, size, "Euler loop should traverse all edges")
+            for (edge in this) {
+                assertTrue(edge in edges, "Edge $edge is not inside graph")
+            }
+            for (i in 0 until size - 1) {
+                assertTrue(this[i].isNeighbour(this[i + 1]), "Edges ${this[i]} & ${this[i + 1]} are not incident")
+            }
+            assertTrue(this[0].isNeighbour(this[size - 1]), "Edges ${this[0]} & ${this[size - 1]} are not incident")
         }
-        for (edge in this) {
-            assertTrue(edge in edges, "Edge $edge is not inside graph")
-        }
-        for (i in 0 until size - 1) {
-            assertTrue(this[i].isNeighbour(this[i + 1]), "Edges ${this[i]} & ${this[i + 1]} are not incident")
-        }
-        assertTrue(this[0].isNeighbour(this[size - 1]), "Edges ${this[0]} & ${this[size - 1]} are not incident")
     }
 
     fun findEulerLoop(findEulerLoop: Graph.() -> List<Graph.Edge>) {
@@ -65,6 +65,45 @@ abstract class AbstractGraphTests {
         }.build()
         val loop2 = graph2.findEulerLoop()
         loop2.assert(true, graph2)
+        val graph3 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            addConnection(a, b)
+            addConnection(b, c)
+            addConnection(a, c)
+            addConnection(d, b)
+            addConnection(a, d)
+        }.build()
+        val loop3 = graph3.findEulerLoop()
+        loop3.assert(false, graph3)
+        val graph4 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            val h = addVertex("H")
+            addConnection(a, b)
+            addConnection(a, d)
+            addConnection(b, c)
+            addConnection(b, g)
+            addConnection(b, f)
+            addConnection(d, e)
+            addConnection(d, f)
+            addConnection(d, c)
+            addConnection(c, e)
+            addConnection(c, g)
+            addConnection(f, e)
+            addConnection(f, g)
+            addConnection(e, h)
+            addConnection(g, h)
+        }.build()
+        val loop4 = graph4.findEulerLoop()
+        loop4.assert(true, graph4)
     }
 
     fun minimumSpanningTree(minimumSpanningTree: Graph.() -> Graph) {
@@ -117,6 +156,20 @@ abstract class AbstractGraphTests {
             val c = addVertex("C")
             val d = addVertex("D")
             val e = addVertex("E")
+            addConnection(a, b)
+            addConnection(a, d)
+            addConnection(a, c)
+            addConnection(a, e)
+        }.build()
+        val independent = graph.largestIndependentVertexSet()
+        assertEquals(setOf(graph["B"], graph["C"], graph["D"], graph["E"]),
+                independent)
+        val graph1 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
             val f = addVertex("F")
             val g = addVertex("G")
             val h = addVertex("H")
@@ -132,9 +185,41 @@ abstract class AbstractGraphTests {
             addConnection(g, h)
             addConnection(h, j)
         }.build()
-        val independent = graph.largestIndependentVertexSet()
-        assertEquals(setOf(graph["A"], graph["D"], graph["E"], graph["F"], graph["G"], graph["J"]),
-                independent)
+        val independent1 = graph1.largestIndependentVertexSet()
+        assertEquals(setOf(graph1["A"], graph1["D"], graph1["E"], graph1["F"], graph1["G"], graph1["J"]),
+                independent1)
+        val graph2 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            val h = addVertex("H")
+            val i = addVertex("I")
+            val j = addVertex("J")
+            val k = addVertex("K")
+            val l = addVertex("L")
+            val m = addVertex("M")
+            val n = addVertex("N")
+            addConnection(a, b)
+            addConnection(a, c)
+            addConnection(a, d)
+            addConnection(b, l)
+            addConnection(b, m)
+            addConnection(b, n)
+            addConnection(c, i)
+            addConnection(d, e)
+            addConnection(e, f)
+            addConnection(e, g)
+            addConnection(e, h)
+            addConnection(i, j)
+            addConnection(i, k)
+        }.build()
+        val independent2 = graph2.largestIndependentVertexSet()
+        assertEquals(setOf(graph2["C"], graph2["D"], graph2["F"], graph2["G"], graph2["H"], graph2["J"], graph2["K"],
+                graph2["L"], graph2["M"], graph2["N"]), independent2)
     }
 
     fun longestSimplePath(longestSimplePath: Graph.() -> Path) {

@@ -48,6 +48,8 @@ class GraphBuilder {
 
         override fun getVertices(): Set<Vertex> = this@GraphBuilder.vertices.values.toSet()
 
+        override fun getRandomVertex(): Vertex = this@GraphBuilder.vertices.values.first()
+
         override fun getEdges(): Set<Edge> {
             return connections.values.flatten().toSet()
         }
